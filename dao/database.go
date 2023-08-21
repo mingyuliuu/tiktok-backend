@@ -8,20 +8,20 @@ import (
 	"gorm.io/gorm"
 )
 
-var Db *gorm.DB
+var db *gorm.DB
 
 func InitDB() *gorm.DB {
-  dbConfig := config.MYSQL_USERNAME + ":" + config.MYSQL_PASSWORD + "@tcp(" + config.MYSQL_HOST + ":" + config.MYSQL_PORT + ")/" + config.MYSQL_NAME + "?parseTime=true&loc=Local"
-	
-  fmt.Println("Database Configuration: ", dbConfig)
+	dbConfig := config.MYSQL_USERNAME + ":" + config.MYSQL_PASSWORD + "@tcp(" + config.MYSQL_HOST + ":" + config.MYSQL_PORT + ")/" + config.MYSQL_NAME + "?charset=utf8mb4&parseTime=true&loc=Local"
 
-  var err error
-  Db, err = gorm.Open(mysql.Open(dbConfig), &gorm.Config{})
-  
+	fmt.Println("Database Configuration: ", dbConfig)
+
+	var err error
+	db, err = gorm.Open(mysql.Open(dbConfig), &gorm.Config{})
+
 	if err != nil {
 		fmt.Printf("Error connecting to database: error=%v", err)
 		return nil
 	}
-  
-	return Db
+
+	return db
 }
