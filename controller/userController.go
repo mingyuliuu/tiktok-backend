@@ -5,7 +5,7 @@ import (
   "main/models"
 	"net/http"
 
-	"github.com/gin-goric/gin"
+  "github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -20,12 +20,6 @@ type UserLoginResponse struct {
 	Token  string `json:"token"`
 }
 
-/*
-type UserResponse struct {
-	Response
-	User service.User `json:"user"`
-}
-*/
 func Register(c *gin.Context) {
   var body struct {
     Username string
@@ -57,9 +51,8 @@ func Register(c *gin.Context) {
     })
   }
 
-  //respond
-  c.JSON(http.StatusOK, gin.H{})
-  
+  // Respond
+  c.JSON(http.StatusOK, gin.H{ "message": "User registered successfully"})
 }
 
   //  POST request douyin/user/login/ 用户登录

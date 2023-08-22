@@ -28,7 +28,5 @@ func InitDB() *gorm.DB {
 }
 
 func SyncDB(){
-  Db.AutoMigrate(&models.User)
-  
+  Db.AutoMigrate(&models.User{})
 }
-
