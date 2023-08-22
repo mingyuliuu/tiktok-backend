@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+  "main/controller"
 )
 
 func initRouter(r *gin.Engine) {
@@ -12,6 +13,8 @@ func initRouter(r *gin.Engine) {
       "message": "Connection - success!",
     })
   })
+
+  r.POST("/user/register/", controller.Register)
   
   /*
   r.GET("/feed/", controller.Feed)

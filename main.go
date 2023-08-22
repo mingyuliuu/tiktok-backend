@@ -4,12 +4,16 @@ import (
   "fmt"
   "github.com/gin-gonic/gin"
   "main/dao"
+  
 )
 
-func main() {
+func init(){
   // Initiate project dependencies
   dao.InitDB()
-  
+  dao.SyncDB()
+}
+
+func main() {
   r := gin.Default()
 
 	initRouter(r)

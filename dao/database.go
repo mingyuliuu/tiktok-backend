@@ -3,6 +3,7 @@ package dao
 import (
 	"fmt"
 	"main/config"
+  "main/models"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -25,3 +26,9 @@ func InitDB() *gorm.DB {
   
 	return Db
 }
+
+func SyncDB(){
+  Db.AutoMigrate(&models.User)
+  
+}
+
