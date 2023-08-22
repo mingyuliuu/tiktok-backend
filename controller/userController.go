@@ -19,6 +19,10 @@ type UserAuthResponse struct {
 	UserId     int64  `json:"user_id,omitempty"`
 	Token      string `json:"token"`
 }
+type ListUsersResponse struct {
+	StatusCode int32         `json:"status_code"`
+	Users      []models.User `json:"users"`
+}
 
 func Register(c *gin.Context) {
 	var queryParams struct {
@@ -159,4 +163,23 @@ func UserInfo(c *gin.Context) {
 	       })
 	   }
 	*/
+}
+
+// For internal use: get the list of all users
+func GetAllUsers(c *gin.Context) {
+	var users []models.User
+	result := dao.Db.Find(&users)
+
+	if result.Error != nil {
+		c.JSON(http.StatusBadRequest, ListUsersResponse{
+			StatusCode: 1,
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, ListUsersResponse{
+		StatusCode: 0,
+		Users:      users,
+	})
 }
