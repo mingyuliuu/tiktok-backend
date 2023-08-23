@@ -17,7 +17,7 @@ func initRouter(r *gin.Engine) {
 	{
 		userRouter.POST("/register", controller.Register)
 		userRouter.POST("/login", controller.Login)
-		userRouter.GET("/user", controller.UserInfo)
+		userRouter.GET("/", controller.GetUserInfo)
 	}
 
 	internalRouter := r.Group("/internal")

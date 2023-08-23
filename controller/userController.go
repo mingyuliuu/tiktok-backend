@@ -5,6 +5,7 @@ import (
 	"main/models"
 	"net/http"
 	"os"
+	"strconv"
 
 	"time"
 
@@ -19,7 +20,14 @@ type UserAuthResponse struct {
 	UserId     int64  `json:"user_id,omitempty"`
 	Token      string `json:"token"`
 }
-type ListUsersResponse struct {
+
+type UserInfoResponse struct {
+	StatusCode int32        `json:"status_code"`
+	StatusMsg  string       `json:"status_msg,omitempty"`
+	User       *models.User `json:"user"`
+}
+
+type GetUsersResponse struct {
 	StatusCode int32         `json:"status_code"`
 	Users      []models.User `json:"users"`
 }
@@ -143,26 +151,26 @@ func Login(c *gin.Context) {
 	})
 }
 
-// GET request douyin/user/ Get user info by ID
-func UserInfo(c *gin.Context) {
-	/*
-	   var users []models.User
-	   // Get all records
-	   result := dao.Db.Find(&users)
-	*/
-	/*
-	   user_id := c.Query("user_id")
-	   id, _ := strconv.ParseInt(user_id, 10, 64)
+func GetUserInfo(c *gin.Context) {
+	userID, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
 
-	   if u, err := usi.GetUserById(id); err != nil {
-	       c.JSON(http.StatusOK, )
-	   } else {
-	       c.JSON(http.StatusOK, UserResponse{
-	           Response: Response{StatusCode: 0},
-	           User:     u,
-	       })
-	   }
-	*/
+	var user models.User
+	result := dao.Db.First(&user, userID)
+
+	if result.Error != nil {
+		c.JSON(http.StatusBadRequest, UserInfoResponse{
+			StatusCode: 1,
+			StatusMsg:  "Failed to obtain user information",
+			User:       nil,
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, UserInfoResponse{
+		StatusCode: 0,
+		User:       &user,
+	})
 }
 
 // For internal use: get the list of all users
@@ -171,14 +179,14 @@ func GetAllUsers(c *gin.Context) {
 	result := dao.Db.Find(&users)
 
 	if result.Error != nil {
-		c.JSON(http.StatusBadRequest, ListUsersResponse{
+		c.JSON(http.StatusBadRequest, GetUsersResponse{
 			StatusCode: 1,
 		})
 
 		return
 	}
 
-	c.JSON(http.StatusOK, ListUsersResponse{
+	c.JSON(http.StatusOK, GetUsersResponse{
 		StatusCode: 0,
 		Users:      users,
 	})
