@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"main/models"
-	"main/services/database"
+	userServices "main/services/user"
 	"net/http"
 	"os"
 	"strconv"
@@ -22,9 +22,9 @@ type UserAuthResponse struct {
 }
 
 type UserInfoResponse struct {
-	StatusCode int32        `json:"status_code"`
-	StatusMsg  string       `json:"status_msg,omitempty"`
-	User       *models.User `json:"user"`
+	StatusCode int32                  `json:"status_code"`
+	StatusMsg  string                 `json:"status_msg,omitempty"`
+	User       *userServices.UserInfo `json:"user"`
 }
 
 type GetUsersResponse struct {
@@ -58,16 +58,11 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	// Create user
+	// Create user and get its ID
 	newUser := models.User{Username: queryParams.Username, Password: string(hash)}
-	result := services.Db.Create(&newUser)
+	userID, err := userServices.CreateUser(&newUser)
 
-	// Get user ID
-	var findUser models.User
-	services.Db.First(&findUser, "username = ?", queryParams.Username)
-	userID := int64(findUser.ID)
-
-	if result.Error != nil {
+	if err != nil {
 		c.JSON(http.StatusBadRequest, UserAuthResponse{
 			StatusCode: 1,
 			StatusMsg:  "Failed to create user",
@@ -99,10 +94,9 @@ func Login(c *gin.Context) {
 	}
 
 	// Look up requested user
-	var user models.User
-	services.Db.First(&user, "username = ?", queryParams.Username)
+	user, err := userServices.GetUserByUsername(queryParams.Username)
 
-	if user.ID == 0 {
+	if err != nil || user.ID == 0 {
 		c.JSON(http.StatusBadRequest, UserAuthResponse{
 			StatusCode: 1,
 			StatusMsg:  "Invalid email or password",
@@ -112,7 +106,7 @@ func Login(c *gin.Context) {
 	}
 
 	// Compare with the password hash in db
-	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(queryParams.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(queryParams.Password))
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, UserAuthResponse{
@@ -153,11 +147,9 @@ func Login(c *gin.Context) {
 
 func GetUserInfo(c *gin.Context) {
 	userID, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
+	user, err := userServices.GetUserInfoById(userID)
 
-	var user models.User
-	result := services.Db.First(&user, userID)
-
-	if result.Error != nil {
+	if err != nil {
 		c.JSON(http.StatusBadRequest, UserInfoResponse{
 			StatusCode: 1,
 			StatusMsg:  "Failed to obtain user information",
@@ -169,16 +161,15 @@ func GetUserInfo(c *gin.Context) {
 
 	c.JSON(http.StatusOK, UserInfoResponse{
 		StatusCode: 0,
-		User:       &user,
+		User:       user,
 	})
 }
 
 // For internal use: get the list of all users
 func GetAllUsers(c *gin.Context) {
-	var users []models.User
-	result := services.Db.Find(&users)
+	users, err := userServices.GetUsersList()
 
-	if result.Error != nil {
+	if err != nil {
 		c.JSON(http.StatusBadRequest, GetUsersResponse{
 			StatusCode: 1,
 		})
