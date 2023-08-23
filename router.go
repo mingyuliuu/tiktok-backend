@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"main/controller"
+	"main/controllers"
 	"net/http"
 )
 
@@ -15,14 +15,14 @@ func initRouter(r *gin.Engine) {
 
 	userRouter := r.Group("/user")
 	{
-		userRouter.POST("/register", controller.Register)
-		userRouter.POST("/login", controller.Login)
-		userRouter.GET("/", controller.GetUserInfo)
+		userRouter.POST("/register", controllers.Register)
+		userRouter.POST("/login", controllers.Login)
+		userRouter.GET("/", controllers.GetUserInfo)
 	}
 
 	internalRouter := r.Group("/internal")
 	{
-		internalRouter.GET("/users", controller.GetAllUsers)
+		internalRouter.GET("/users", controllers.GetAllUsers)
 	}
 
 	/*

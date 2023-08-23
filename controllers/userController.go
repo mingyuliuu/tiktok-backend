@@ -1,8 +1,8 @@
-package controller
+package controllers
 
 import (
-	"main/dao"
 	"main/models"
+	"main/services/database"
 	"net/http"
 	"os"
 	"strconv"
@@ -60,11 +60,11 @@ func Register(c *gin.Context) {
 
 	// Create user
 	newUser := models.User{Username: queryParams.Username, Password: string(hash)}
-	result := dao.Db.Create(&newUser)
+	result := services.Db.Create(&newUser)
 
 	// Get user ID
 	var findUser models.User
-	dao.Db.First(&findUser, "username = ?", queryParams.Username)
+	services.Db.First(&findUser, "username = ?", queryParams.Username)
 	userID := int64(findUser.ID)
 
 	if result.Error != nil {
@@ -100,7 +100,7 @@ func Login(c *gin.Context) {
 
 	// Look up requested user
 	var user models.User
-	dao.Db.First(&user, "username = ?", queryParams.Username)
+	services.Db.First(&user, "username = ?", queryParams.Username)
 
 	if user.ID == 0 {
 		c.JSON(http.StatusBadRequest, UserAuthResponse{
@@ -155,7 +155,7 @@ func GetUserInfo(c *gin.Context) {
 	userID, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
 
 	var user models.User
-	result := dao.Db.First(&user, userID)
+	result := services.Db.First(&user, userID)
 
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, UserInfoResponse{
@@ -176,7 +176,7 @@ func GetUserInfo(c *gin.Context) {
 // For internal use: get the list of all users
 func GetAllUsers(c *gin.Context) {
 	var users []models.User
-	result := dao.Db.Find(&users)
+	result := services.Db.Find(&users)
 
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, GetUsersResponse{
