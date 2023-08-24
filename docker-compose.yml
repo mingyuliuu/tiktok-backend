@@ -1,0 +1,87 @@
+version: "3.8"
+
+# Docker setting, to facilitate communication between containers
+networks:
+  docker-inetrnal-network:
+    driver: bridge
+
+# Create volumes if not exist (?)
+volumes:
+  db_data:
+  redis_data:
+  rabbitmq_data:
+  nginx_data:
+  vsftpd_data:
+
+# Docker containers setting
+services:
+  mysql:
+    image: mysql
+    container_name: mysql
+    restart: always
+    volumes:
+      - db_data:/var/lib/db_data
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=tiktok_backend
+      - MYSQL_ROOT_PASSWORD=PtoYbtCt
+    networks:
+      - docker-inetrnal-network
+
+  redis:
+    image: redis
+    container_name: redis
+    restart: always
+    volumes:
+      - redis_data:/var/lib/redis_data
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=PtoYbtCt
+    networks:
+      - docker-inetrnal-network
+
+  rabbitmq:
+    image: rabbitmq
+    container_name: rabbitmq
+    restart: always
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq_data
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=root
+      - RABBITMQ_DEFAULT_PASS=PtoYbtCt
+    networks:
+      - docker-inetrnal-network
+
+    
+  nginx:
+    image: nginx
+    container_name: nginx
+    restart: always
+    volumes:
+      - nginx_data:/var/lib/nginx_data
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - docker-inetrnal-network
+
+  vsftpd:
+    image: fauria/vsftpd
+    container_name: vsftpd
+    restart: always
+    volumes:
+      - vsftpd_data:/var/lib/vsftpd_data
+    ports:
+      - "20:20"
+      - "21:21"
+      - "21100-21110:21100-21110"
+    environment:
+      - FTP_USER=root
+      - FTP_PASS=PtoYbtCt
+    networks:
+      - docker-inetrnal-network

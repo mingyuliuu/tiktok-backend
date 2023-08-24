@@ -1,44 +1,37 @@
-CONTAINER_NAME = gosql
-MYSQL_NAME = tiktok_backend
-MYSQL_PORT = 3306
-MYSQL_USERNAME = root
 MYSQL_PASSWORD = PtoYbtCt
 
-# Download Image If Not Exists Then Build Mysql Container (database_name = ${MYSQL_NAME}, default_user_name = root, default_user_password = ${MYSQL_PASSWORD})
-composedb:
-ifeq ($(shell docker images -q mysql 2> /dev/null),)  
-	docker pull mysql
-endif
-	docker run --name ${CONTAINER_NAME} -d -e MYSQL_DATABASE=${MYSQL_NAME} -e MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD} -p ${MYSQL_PORT}:${MYSQL_PORT} mysql 
+dkcompose:
+	docker compose -f ./docker-compose.yml up
 
-# Stop Then Delete Mysql Container
-dropdb:
-	docker stop ${CONTAINER_NAME}
-	docker rm ${CONTAINER_NAME}
+dkremove:
+	docker compose -f ./docker-compose.yml down
 
-# Open sql terminal (required to manual inpit the second line)
+clean: 
+	docker container stop mysql &
+	docker container stop redis &
+	docker container stop rabbitmq &
+	docker container stop nginx &
+	docker container stop vsftpd &
+	docker image rm mysql &
+	docker image rm redis &
+	docker image rm rabbitmq &
+	docker image rm nginx &
+	docker image rm vsftpd
+
 sqlterminal:
-	docker exec -it ${CONTAINER_NAME} bash
+	docker exec -it mysql bash
 	mysql -u root -p${MYSQL_PASSWORD}
 
-# Clean Environment
-clean: dropdb 
-	docker rmi mysql
-
-# Download GIN
 gin:
 	go get -u github.com/gin-gonic/gin
 
-# Download GORM
 gorm:
 	go get -u gorm.io/gorm
 
-# Download Gen
 gen:
 	go get -u gorm.io/gen
 
-# Run Project
-run:
+gorun:
 	go run *.go
 
-.PHONY: composedb dropdb sqlterminal clean gin gorm run
+.PHONY: compose stop clean sqlterminal gin gorm gen gorun
