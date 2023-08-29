@@ -6,6 +6,7 @@ import (
 	"main/models"
 
 	"gorm.io/driver/mysql"
+	"gorm.io/gen"
 	"gorm.io/gorm"
 )
 
@@ -29,4 +30,14 @@ func InitDB() *gorm.DB {
 
 func SyncDB() {
 	Db.AutoMigrate(&models.User{})
+	Db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(&models.User{})
+
+	g := gen.NewGenerator(gen.Config{
+		OutPath: "dao",
+		Mode:    gen.WithoutContext | gen.WithDefaultQuery | gen.WithQueryInterface,
+	})
+
+	g.UseDB(Db)
+	g.ApplyBasic(&models.User{})
+	g.Execute()
 }
