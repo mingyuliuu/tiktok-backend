@@ -16,44 +16,54 @@ import (
 )
 
 var (
-	Q       = new(Query)
-	Comment *comment
-	User    *user
-	Video   *video
+	Q                = new(Query)
+	Comment          *comment
+	User             *user
+	UserVideo        *userVideo
+	Video            *video
+	VideoUserComment *videoUserComment
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	*Q = *Use(db, opts...)
 	Comment = &Q.Comment
 	User = &Q.User
+	UserVideo = &Q.UserVideo
 	Video = &Q.Video
+	VideoUserComment = &Q.VideoUserComment
 }
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:      db,
-		Comment: newComment(db, opts...),
-		User:    newUser(db, opts...),
-		Video:   newVideo(db, opts...),
+		db:               db,
+		Comment:          newComment(db, opts...),
+		User:             newUser(db, opts...),
+		UserVideo:        newUserVideo(db, opts...),
+		Video:            newVideo(db, opts...),
+		VideoUserComment: newVideoUserComment(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	Comment comment
-	User    user
-	Video   video
+	Comment          comment
+	User             user
+	UserVideo        userVideo
+	Video            video
+	VideoUserComment videoUserComment
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:      db,
-		Comment: q.Comment.clone(db),
-		User:    q.User.clone(db),
-		Video:   q.Video.clone(db),
+		db:               db,
+		Comment:          q.Comment.clone(db),
+		User:             q.User.clone(db),
+		UserVideo:        q.UserVideo.clone(db),
+		Video:            q.Video.clone(db),
+		VideoUserComment: q.VideoUserComment.clone(db),
 	}
 }
 
@@ -67,24 +77,30 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:      db,
-		Comment: q.Comment.replaceDB(db),
-		User:    q.User.replaceDB(db),
-		Video:   q.Video.replaceDB(db),
+		db:               db,
+		Comment:          q.Comment.replaceDB(db),
+		User:             q.User.replaceDB(db),
+		UserVideo:        q.UserVideo.replaceDB(db),
+		Video:            q.Video.replaceDB(db),
+		VideoUserComment: q.VideoUserComment.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	Comment ICommentDo
-	User    IUserDo
-	Video   IVideoDo
+	Comment          ICommentDo
+	User             IUserDo
+	UserVideo        IUserVideoDo
+	Video            IVideoDo
+	VideoUserComment IVideoUserCommentDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		Comment: q.Comment.WithContext(ctx),
-		User:    q.User.WithContext(ctx),
-		Video:   q.Video.WithContext(ctx),
+		Comment:          q.Comment.WithContext(ctx),
+		User:             q.User.WithContext(ctx),
+		UserVideo:        q.UserVideo.WithContext(ctx),
+		Video:            q.Video.WithContext(ctx),
+		VideoUserComment: q.VideoUserComment.WithContext(ctx),
 	}
 }
 
