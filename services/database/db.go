@@ -29,8 +29,8 @@ func InitDB() *gorm.DB {
 }
 
 func SyncDB() {
-	Db.AutoMigrate(&models.User{})
-	Db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(&models.User{})
+	Db.AutoMigrate(&models.User{}, &models.Video{})
+	Db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(&models.User{}, &models.Video{})
 
 	g := gen.NewGenerator(gen.Config{
 		OutPath: "dao",
@@ -38,6 +38,6 @@ func SyncDB() {
 	})
 
 	g.UseDB(Db)
-	g.ApplyBasic(&models.User{})
+	g.ApplyBasic(&models.User{}, &models.Video{})
 	g.Execute()
 }
