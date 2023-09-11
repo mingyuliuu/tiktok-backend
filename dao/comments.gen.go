@@ -26,11 +26,9 @@ func newComment(db *gorm.DB, opts ...gen.DOOption) comment {
 
 	tableName := _comment.commentDo.TableName()
 	_comment.ALL = field.NewAsterisk(tableName)
-	_comment.ID = field.NewUint(tableName, "id")
+	_comment.CommentID = field.NewUint(tableName, "comment_id")
+	_comment.CommentContent = field.NewString(tableName, "comment_content")
 	_comment.CreatedAt = field.NewTime(tableName, "created_at")
-	_comment.UpdatedAt = field.NewTime(tableName, "updated_at")
-	_comment.DeletedAt = field.NewField(tableName, "deleted_at")
-	_comment.Content = field.NewString(tableName, "content")
 
 	_comment.fillFieldMap()
 
@@ -40,12 +38,10 @@ func newComment(db *gorm.DB, opts ...gen.DOOption) comment {
 type comment struct {
 	commentDo
 
-	ALL       field.Asterisk
-	ID        field.Uint
-	CreatedAt field.Time
-	UpdatedAt field.Time
-	DeletedAt field.Field
-	Content   field.String
+	ALL            field.Asterisk
+	CommentID      field.Uint
+	CommentContent field.String
+	CreatedAt      field.Time
 
 	fieldMap map[string]field.Expr
 }
@@ -62,11 +58,9 @@ func (c comment) As(alias string) *comment {
 
 func (c *comment) updateTableName(table string) *comment {
 	c.ALL = field.NewAsterisk(table)
-	c.ID = field.NewUint(table, "id")
+	c.CommentID = field.NewUint(table, "comment_id")
+	c.CommentContent = field.NewString(table, "comment_content")
 	c.CreatedAt = field.NewTime(table, "created_at")
-	c.UpdatedAt = field.NewTime(table, "updated_at")
-	c.DeletedAt = field.NewField(table, "deleted_at")
-	c.Content = field.NewString(table, "content")
 
 	c.fillFieldMap()
 
@@ -83,12 +77,10 @@ func (c *comment) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (c *comment) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 5)
-	c.fieldMap["id"] = c.ID
+	c.fieldMap = make(map[string]field.Expr, 3)
+	c.fieldMap["comment_id"] = c.CommentID
+	c.fieldMap["comment_content"] = c.CommentContent
 	c.fieldMap["created_at"] = c.CreatedAt
-	c.fieldMap["updated_at"] = c.UpdatedAt
-	c.fieldMap["deleted_at"] = c.DeletedAt
-	c.fieldMap["content"] = c.Content
 }
 
 func (c comment) clone(db *gorm.DB) comment {
